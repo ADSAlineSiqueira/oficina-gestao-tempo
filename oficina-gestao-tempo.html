@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gestão de Tempo</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+header p {
+    font-size: 18px;
+}
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+h2 {
+    color: #1e40af;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    margin: 8px 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+input, select {
+    padding: 10px;
+    width: 90%;
+    max-width: 500px;
+    margin: 8px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: #f8fafc;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.concluida {
+    text-decoration: line-through;
+    color: gray;
+}
+
+.timer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #1e40af;
+    margin: 20px 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.dia {
+    background: #eff6ff;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.resultado {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 15px;
+    color: #1e40af;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background: #1e293b;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Gestão de Tempo com Tecnologia</h1>
+    <p>Use ferramentas digitais para organizar sua rotina, estudar melhor e reduzir distrações.</p>
+</header>
+
+<div class="container">
+
+    <!-- TIMER POMODORO -->
+    <div class="card">
+        <h2>⏱ Timer Pomodoro</h2>
+        <p>Use 25 minutos de foco e depois faça uma pausa curta.</p>
+
+        <div class="timer" id="timer">25:00</div>
+
+        <button onclick="iniciarTimer()">Iniciar</button>
+        <button onclick="pausarTimer()">Pausar</button>
+        <button onclick="resetarTimer()">Resetar</button>
+    </div>
+
+    <!-- CHECKLIST DE TAREFAS -->
+    <div class="card">
+        <h2>✅ Checklist de Tarefas</h2>
+        <p>Adicione suas tarefas e marque quando concluir.</p>
+
+        <input type="text" id="novaTarefa" placeholder="Digite uma tarefa">
+        <button onclick="adicionarTarefa()">Adicionar tarefa</button>
+
+        <ul id="listaTarefas"></ul>
+    </div>
+
+    <!-- ORGANIZADOR SEMANAL -->
+    <div class="card">
+        <h2>📅 Organizador Semanal</h2>
+        <p>Escolha o dia da semana e adicione uma atividade importante.</p>
+
+        <select id="diaSemana">
+            <option value="segunda">Segunda-feira</option>
+            <option value="terca">Terça-feira</option>
+            <option value="quarta">Quarta-feira</option>
+            <option value="quinta">Quinta-feira</option>
+            <option value="sexta">Sexta-feira</option>
+            <option value="sabado">Sábado</option>
+            <option value="domingo">Domingo</option>
+        </select>
+
+        <br>
+
+        <input type="text" id="atividadeSemana" placeholder="Digite a atividade">
+        <button onclick="adicionarAtividade()">Adicionar no cronograma</button>
+
+        <div class="grid">
+            <div class="dia">
+                <h3>Segunda</h3>
+                <ul id="segunda"></ul>
+            </div>
+
+            <div class="dia">
+                <h3>Terça</h3>
+                <ul id="terca"></ul>
+            </div>
+
+            <div class="dia">
+                <h3>Quarta</h3>
+                <ul id="quarta"></ul>
+            </div>
+
+            <div class="dia">
+                <h3>Quinta</h3>
+                <ul id="quinta"></ul>
+            </div>
+
+            <div class="dia">
+                <h3>Sexta</h3>
+                <ul id="sexta"></ul>
+            </div>
+
+            <div class="dia">
+                <h3>Sábado</h3>
+                <ul id="sabado"></ul>
+            </div>
+
+            <div class="dia">
+                <h3>Domingo</h3>
+                <ul id="domingo"></ul>
+            </div>
+        </div>
+    </div>
+
+<footer>
+    Projeto ADS — Desenvolvimento Pessoal e Trabalhabilidade
+</footer>
+
+<script>
+// TIMER POMODORO
+
+let tempo = 25 * 60;
+let intervalo = null;
+
+function atualizarTimer() {
+    let minutos = Math.floor(tempo / 60);
+    let segundos = tempo % 60;
+
+    if (segundos < 10) {
+        segundos = "0" + segundos;
+    }
+
+    document.getElementById("timer").innerHTML = minutos + ":" + segundos;
+}
+
+function iniciarTimer() {
+    if (intervalo === null) {
+        intervalo = setInterval(function() {
+            if (tempo > 0) {
+                tempo--;
+                atualizarTimer();
+            } else {
+                clearInterval(intervalo);
+                intervalo = null;
+                alert("Tempo finalizado! Faça uma pausa.");
+            }
+        }, 1000);
+    }
+}
+
+function pausarTimer() {
+    clearInterval(intervalo);
+    intervalo = null;
+}
+
+function resetarTimer() {
+    clearInterval(intervalo);
+    intervalo = null;
+    tempo = 25 * 60;
+    atualizarTimer();
+}
+
+// CHECKLIST DE TAREFAS
+
+function adicionarTarefa() {
+    let input = document.getElementById("novaTarefa");
+    let texto = input.value.trim();
+
+    if (texto === "") {
+        alert("Digite uma tarefa.");
+        return;
+    }
+
+    let lista = document.getElementById("listaTarefas");
+
+    let item = document.createElement("li");
+    item.innerHTML = `
+        <span onclick="marcarConcluida(this)">${texto}</span>
+        <button onclick="removerItem(this)">Remover</button>
+    `;
+
+    lista.appendChild(item);
+    input.value = "";
+}
+
+function marcarConcluida(elemento) {
+    elemento.classList.toggle("concluida");
+}
+
+function removerItem(botao) {
+    botao.parentElement.remove();
+}
+
+// ORGANIZADOR SEMANAL
+
+function adicionarAtividade() {
+    let dia = document.getElementById("diaSemana").value;
+    let atividade = document.getElementById("atividadeSemana").value.trim();
+
+    if (atividade === "") {
+        alert("Digite uma atividade.");
+        return;
+    }
+
+    let listaDia = document.getElementById(dia);
+
+    let item = document.createElement("li");
+    item.innerHTML = `
+        <span onclick="marcarConcluida(this)">${atividade}</span>
+        <button onclick="removerItem(this)">X</button>
+    `;
+
+    listaDia.appendChild(item);
+
+    document.getElementById("atividadeSemana").value = "";
+}
+
+// MINI TESTE DE PRODUTIVIDADE
+
+function calcularTeste() {
+    let formulario = document.getElementById("testeProdutividade");
+
+    let total = 0;
+
+    total += Number(formulario.p1.value);
+    total += Number(formulario.p2.value);
+    total += Number(formulario.p3.value);
+    total += Number(formulario.p4.value);
+    total += Number(formulario.p5.value);
+
+    let resultado = "";
+
+    if (total <= 7) {
+        resultado = "Excelente! Você demonstra boa organização e usa bem seu tempo.";
+    } else if (total <= 11) {
+        resultado = "Atenção! Sua produtividade está razoável, mas pode melhorar com planejamento.";
+    } else {
+        resultado = "Cuidado! Sua rotina pode estar sendo prejudicada por distrações e falta de organização.";
+    }
+
+    document.getElementById("resultadoTeste").innerHTML = resultado;
+}
+
+atualizarTimer();
+</script>
+
+</body>
+</html>
